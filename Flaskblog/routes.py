@@ -1,12 +1,9 @@
 #Импорты
-from flask import Flask, render_template, url_for, flash, redirect
-from forms import RegistrationForm, LoginForm
+from flask import render_template, url_for, flash, redirect
 
-#Инициализируем Фласк-приложение
-app = Flask(__name__)
-
-#Секретный ключ, защищающий приложение от изменений cookies злоумышленныиками
-app.config['SECRET_KEY'] = 'PAVEL'
+from Flaskblog import app
+from Flaskblog.forms import RegistrationForm, LoginForm
+from Flaskblog.models import User, Post
 
 
 #информация, хранящаяся в памяти
@@ -24,6 +21,7 @@ posts = [
         'date_posted': 'June 23, 2018'
     }
 ]
+
 
 
 #добавляем домашний эндпоинт
@@ -60,8 +58,3 @@ def login():
         else:  #если авторизация провалилась
             flash('Login Unsuccessful. Please check username and password.', 'danger') #выкидываем сообщение
     return render_template('login.html', title='Login', form=form) #отправляем юзеру страницу с формой авторизации
-
-
-
-if __name__ == '__main__':
-    app.run(debug = True)
