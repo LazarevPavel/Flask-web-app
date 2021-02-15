@@ -1,10 +1,17 @@
 #импорты
-from Flaskblog import db
+from Flaskblog import db, login_manager
 from datetime import datetime
+from flask_login import UserMixin
+
+
+#загрузка пользователя из базы с декоратором
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 #Класс модели юзера
-class User(db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)    #ID юзера - первичный ключ
     username = db.Column(db.String(20), unique=True, nullable=False)    #имя юзера длины 20 или меньше, уникальное, не пустое
     email = db.Column(db.String(120), unique=True, nullable=False)      #имя юзера длины 20 или меньше, уникальное, не пустое

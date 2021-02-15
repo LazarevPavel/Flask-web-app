@@ -1,7 +1,13 @@
 #импорты
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
+
+from flask_login import current_user
+
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+
+from Flaskblog.models import User
 
 
 #Класс регистрационной формы (наследуется от FlaskForm)
@@ -16,6 +22,53 @@ class RegistrationForm(FlaskForm):
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     #кнопка подтверждения
     submit = SubmitField('Sign Up')
+
+
+    #проверка существования юзера с указанным именем
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()  #ищем юзера с указанным именем
+        if user:   #если такой юзер есть, выкинем ошибку
+            raise ValidationError('That username is taken. Please choose a different one.')
+
+
+    # проверка существования юзера с указанным именем
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()  # ищем юзера с указанным именем
+        if user:  # если такой юзер есть, выкинем ошибку
+            raise ValidationError('That email is taken. Please choose a different one.')
+
+
+
+
+
+#Класс формы обновления информации аккаунта (наследуется от FlaskForm)
+class UpdateAccountForm(FlaskForm):
+    #поле: имя юзера типа String, не может быть пустым (DataRequired), длина имени должна находиться в пределах 2-20 символов (Length)
+    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
+    #поле: почта типа String, не может быть пустым (DataRequired), соблюдается контроль написания адреса почты (Email)
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    #поле: картинка
+    picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
+
+    #кнопка подтверждения
+    submit = SubmitField('Update')
+
+
+    #проверка существования юзера с указанным именем
+    def validate_username(self, username):
+        if username.data != current_user.username:
+            user = User.query.filter_by(username=username.data).first()  #ищем юзера с указанным именем
+            if user:   #если такой юзер есть, выкинем ошибку
+                raise ValidationError('That username is taken. Please choose a different one.')
+
+
+    # проверка существования юзера с указанным именем
+    def validate_email(self, email):
+        if email.data != current_user.email:
+            user = User.query.filter_by(email=email.data).first()  # ищем юзера с указанным именем
+            if user:  # если такой юзер есть, выкинем ошибку
+                raise ValidationError('That email is taken. Please choose a different one.')
+
 
 
 
