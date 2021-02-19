@@ -1,7 +1,9 @@
 #импорты
-from Flaskblog import db, login_manager
+from Flaskblog import db, login_manager, app
 from datetime import datetime
 from flask_login import UserMixin
+
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 
 #загрузка пользователя из базы с декоратором
@@ -18,6 +20,22 @@ class User(db.Model, UserMixin):
     image_file = db.Column(db.String(20), nullable=False, default='default.jpg')   #аватарка юзера, не пустая, есть дефолтная картинка, если у юзера нет своей
     password = db.Column(db.String(60), nullable=False)  #пароль юзера, не пустое
     posts = db.relationship('Post', backref='author', lazy=True) #связь постов и юзеров. добавление столбца Post, в постах добавляем столбец author
+
+    #получить сбрасываемого токен
+    def get_reset_token(self, expires_sec=1800):
+        s = Serializer(app.config['SECRET_KEY'], expires_sec)  #инициализируем сериализатор, дающий токены на 30 минут
+        return s.dumps({'user_id': self.id}).decode('utf-8')   #возвращаем дамп сериализованный токен в нормальном символьном формате
+
+    #подтверждение сбрасываемого токена
+    @staticmethod
+    def verify_reset_token(token):
+        s = Serializer(app.config['SECRET_KEY']) #инициализируем сериализатор
+        try:
+            user_id = s.loads(token)['user_id']  #загружаем токен, если он правильный
+        except:
+            return None  #если токен не правильный, то возвращаем ничего
+        return User.query.get(user_id)  #если токен правильный, возвращаем юзера из базы по данным токена
+
 
     #магический метод форматного вывода объекта класса
     def __repr__(self):

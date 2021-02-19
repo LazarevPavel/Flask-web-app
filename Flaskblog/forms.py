@@ -4,7 +4,7 @@ from flask_wtf.file import FileField, FileAllowed
 
 from flask_login import current_user
 
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 
 from Flaskblog.models import User
@@ -31,7 +31,7 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('That username is taken. Please choose a different one.')
 
 
-    # проверка существования юзера с указанным именем
+    # проверка существования почты
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()  # ищем юзера с указанным именем
         if user:  # если такой юзер есть, выкинем ошибку
@@ -83,3 +83,33 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Remember me')
     #кнопка подтверждения
     submit = SubmitField('Login')
+
+
+
+#Класс формы для создания постов
+class PostForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])  #поле: заголовок поста
+    content = TextAreaField('Content', validators=[DataRequired()])  #поле: контент поста
+    submit = SubmitField('Post')   #кнопка "запостить"
+
+
+#форма входа на страницу сброса пароля
+class RequestResetForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Request Password Reset')
+
+    # проверка существования почты
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()  # ищем юзера с указанной почтой
+        if user is None:  # если такой юзер есть, выкинем ошибку
+            raise ValidationError('There is no account with that email. You must register first.')
+
+
+#форма сброса пароля на новый
+class ResetPasswordForm(FlaskForm):
+    # поле: пароль типа Password, не может быть пустым
+    password = PasswordField('Password', validators=[DataRequired()])
+    # поле: повтором пароля типа Password, не может быть пустым, проводится проверка соответствия паролей, введённых в оба поля
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Reset Password')
+

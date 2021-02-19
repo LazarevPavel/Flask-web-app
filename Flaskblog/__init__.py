@@ -1,8 +1,11 @@
 #Импорты
+import os
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from flask_mail import Mail
 
 #_---------------------------------------------------------
 
@@ -20,6 +23,14 @@ bcrypt = Bcrypt(app) #инииализируем hash-шифровальщик
 login_manager = LoginManager(app) #инициализация менеджера авторизации
 login_manager.login_view = 'login' #указываем эндпоинт для авторизации. Туда будет пересылаться пользователь при попытке зайти на эндпоинт, требуещий авторизованного юзера
 login_manager.login_message_category = 'info'
+
+#указываем данные для работы с почтой
+app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'kymarimka@gmail.com'
+app.config['MAIL_PASSWORD'] = 'kymarimkaLOL'
+mail = Mail(app)
 
 #импортируем эндпоинты после инициализации Фласк-приложения
 from Flaskblog import routes
