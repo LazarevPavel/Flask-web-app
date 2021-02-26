@@ -1,7 +1,8 @@
 #импорты
-from Flaskblog import db, login_manager, app
+from Flaskblog import db, login_manager
 from datetime import datetime
 from flask_login import UserMixin
+from flask import current_app
 
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
@@ -23,13 +24,13 @@ class User(db.Model, UserMixin):
 
     #получить сбрасываемого токен
     def get_reset_token(self, expires_sec=1800):
-        s = Serializer(app.config['SECRET_KEY'], expires_sec)  #инициализируем сериализатор, дающий токены на 30 минут
+        s = Serializer(current_app.config['SECRET_KEY'], expires_sec)  #инициализируем сериализатор, дающий токены на 30 минут
         return s.dumps({'user_id': self.id}).decode('utf-8')   #возвращаем дамп сериализованный токен в нормальном символьном формате
 
     #подтверждение сбрасываемого токена
     @staticmethod
     def verify_reset_token(token):
-        s = Serializer(app.config['SECRET_KEY']) #инициализируем сериализатор
+        s = Serializer(current_app.config['SECRET_KEY']) #инициализируем сериализатор
         try:
             user_id = s.loads(token)['user_id']  #загружаем токен, если он правильный
         except:

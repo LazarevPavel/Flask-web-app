@@ -4,10 +4,13 @@ from flask_wtf.file import FileField, FileAllowed
 
 from flask_login import current_user
 
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 
 from Flaskblog.models import User
+
+
+
 
 
 #Класс регистрационной формы (наследуется от FlaskForm)
@@ -71,8 +74,6 @@ class UpdateAccountForm(FlaskForm):
 
 
 
-
-
 #Класс авторизационной формы (наследуется от FlaskForm)
 class LoginForm(FlaskForm):
     #поле: почта типа String, не может быть пустым (DataRequired), соблюдается контроль написания адреса почты (Email)
@@ -85,12 +86,6 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 
-
-#Класс формы для создания постов
-class PostForm(FlaskForm):
-    title = StringField('Title', validators=[DataRequired()])  #поле: заголовок поста
-    content = TextAreaField('Content', validators=[DataRequired()])  #поле: контент поста
-    submit = SubmitField('Post')   #кнопка "запостить"
 
 
 #форма входа на страницу сброса пароля
@@ -105,6 +100,7 @@ class RequestResetForm(FlaskForm):
             raise ValidationError('There is no account with that email. You must register first.')
 
 
+
 #форма сброса пароля на новый
 class ResetPasswordForm(FlaskForm):
     # поле: пароль типа Password, не может быть пустым
@@ -112,4 +108,3 @@ class ResetPasswordForm(FlaskForm):
     # поле: повтором пароля типа Password, не может быть пустым, проводится проверка соответствия паролей, введённых в оба поля
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Reset Password')
-
